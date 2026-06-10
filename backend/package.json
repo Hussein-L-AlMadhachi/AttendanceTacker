@@ -24,9 +24,7 @@
         "express": "^4.21.2",
         "jsonwebtoken": "^9.0.2",
         "multer": "^2.0.2",
-        "pg-norm": "^0.1.5"
-    },
-    "devDependencies": {
-        "typescript": "^6.0.3"
+        "pg-norm": "^0.1.5",
+        "typescript": "^5.9.3"
     }
 }
