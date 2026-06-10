@@ -22,9 +22,9 @@ WORKDIR /app/backend
 
 ENV NODE_ENV=production
 
-# Only install production dependencies
+# Only install production dependencies cleanly
 COPY backend/package*.json ./
-RUN npm ci --omit=dev
+RUN npm ci
 
 # Copy compiled files from builder
 COPY --from=builder /app/backend/dist ./dist
