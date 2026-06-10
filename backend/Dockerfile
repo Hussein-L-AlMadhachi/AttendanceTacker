@@ -13,7 +13,7 @@ COPY backend/tsconfig.json ./
 COPY backend/src ./src
 COPY backend/cli ./cli
 
-RUN ./node_modules/.bin/tsc
+RUN npm run build
 
 # --- Runtime Stage ---
 FROM node:20-alpine
