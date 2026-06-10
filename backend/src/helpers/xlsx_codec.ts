@@ -45,10 +45,10 @@ export async function decodeXlsx<T extends Record<string, any>>(
 
         for (const [colNumber, headerName] of Object.entries(headerMap)) {
             const cell = row.getCell(Number(colNumber));
-            let val = cell.value;
+            let val: unknown = cell.value;
             if (val && typeof val === 'object') {
                 if ('result' in val) {
-                    val = val.result;
+                    val = (val as { result: unknown }).result;
                 } else if ('richText' in val) {
                     val = (val as any).richText.map((rt: any) => rt.text).join('');
                 } else if (val instanceof Date) {
