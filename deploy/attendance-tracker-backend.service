@@ -1,0 +1,40 @@
+[Unit]
+Description=Attendance Tracker Backend API
+Documentation=file:///home/hussein/Projects/gigs/AttendanceTacker/README.md
+After=network-online.target
+Wants=network-online.target
+# Uncomment if PostgreSQL runs on the same host:
+# After=postgresql.service
+# Wants=postgresql.service
+
+[Service]
+Type=simple
+User=hussein
+Group=hussein
+
+WorkingDirectory=/home/hussein/Projects/gigs/AttendanceTacker/backend
+
+# Load secrets and DB settings from the project .env file
+EnvironmentFile=-/home/hussein/Projects/gigs/AttendanceTacker/.env
+
+# Required in production (also set in .env)
+Environment=NODE_ENV=production
+
+# Build before deploying or restarting after code changes:
+#   cd backend && npm ci && npm run build
+ExecStart=/usr/bin/node dist/src/main.js
+
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=15
+
+# Hardening (optional; remove NoNewPrivileges if file uploads break)
+NoNewPrivileges=true
+PrivateTmp=true
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=attendance-tracker-backend
+
+[Install]
+WantedBy=multi-user.target
