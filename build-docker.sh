@@ -23,13 +23,18 @@ echo ""
 
 # Build images
 echo -e "${YELLOW}Step 1: Building Docker images...${NC}"
-docker-compose build --no-cache
+docker compose build --no-cache
 
 # Tag images
 echo ""
 echo -e "${YELLOW}Step 2: Tagging images...${NC}"
-docker tag ced-backend:latest cenusis-backend:${VERSION}
-docker tag ced-frontend:latest cenusis-frontend:${VERSION}
+# The images are now built with the correct names in docker compose.yml
+# We just ensure they have the requested version tag
+docker tag cenusis-backend:latest cenusis-backend:${VERSION}
+# If frontend exists in docker compose, it should also be updated
+if docker image inspect cenusis-frontend:latest >/dev/null 2>&1; then
+    docker tag cenusis-frontend:latest cenusis-frontend:${VERSION}
+fi
 echo -e "${GREEN}✓ Images tagged${NC}"
 
 # Create output directory
@@ -85,9 +90,9 @@ if ! command -v docker &> /dev/null; then
     exit 1
 fi
 
-# Check if docker-compose is installed
-if ! command -v docker-compose &> /dev/null; then
-    echo "Warning: docker-compose is not installed. You'll need it to run the application."
+# Check if docker compose is installed
+if ! command -v docker compose &> /dev/null; then
+    echo "Warning: docker compose is not installed. You'll need it to run the application."
 fi
 
 # Load the combined image
@@ -120,11 +125,11 @@ echo ""
 echo "======================================"
 echo "Next Steps:"
 echo "======================================"
-echo "1. Copy the docker-compose.yml file to your deployment directory"
-echo "2. Run: docker-compose up -d"
+echo "1. Copy the docker compose.yml file to your deployment directory"
+echo "2. Run: docker compose up -d"
 echo "3. Initialize the database:"
-echo "   docker-compose exec backend node ./dist/cli/create.js"
-echo "   docker-compose exec backend node ./dist/cli/admin.js"
+echo "   docker compose exec backend node ./dist/cli/create.js"
+echo "   docker compose exec backend node ./dist/cli/admin.js"
 echo ""
 echo "For more information, see README.docker.md"
 EOF
@@ -151,8 +156,8 @@ Quick Start:
 -----------
 1. Copy this entire directory to your target machine
 2. Run: ./load-images.sh
-3. Copy docker-compose.yml from the project root
-4. Run: docker-compose up -d
+3. Copy docker compose.yml from the project root
+4. Run: docker compose up -d
 
 For detailed instructions, see README.docker.md in the project root.
 
@@ -169,10 +174,10 @@ echo "Docker images have been saved to: ${OUTPUT_DIR}/"
 echo ""
 echo "To distribute:"
 echo "  1. Copy the '${OUTPUT_DIR}' directory to your target machine"
-echo "  2. Copy 'docker-compose.yml' to the same location"
+echo "  2. Copy 'docker compose.yml' to the same location"
 echo "  3. Run './load-images.sh' on the target machine"
-echo "  4. Run 'docker-compose up -d'"
+echo "  4. Run 'docker compose up -d'"
 echo ""
 echo "Or compress for transfer:"
-echo "  tar -czf cenusis-docker-${VERSION}.tar.gz ${OUTPUT_DIR}/ docker-compose.yml README.docker.md"
+echo "  tar -czf cenusis-docker-${VERSION}.tar.gz ${OUTPUT_DIR}/ docker compose.yml README.docker.md"
 echo ""

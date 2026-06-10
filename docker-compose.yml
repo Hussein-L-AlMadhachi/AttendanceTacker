@@ -51,6 +51,7 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
+    image: cenusis-backend:latest
     container_name: cenusis-backend
     restart: unless-stopped
     # Do NOT use env_file here — .env DB_HOST/DB_PORT are for the host, not Docker network
