@@ -1,9 +1,8 @@
 # Backend Dockerfile
-FROM node:20-alpine
+FROM node:20-alpine AS builder
 
 WORKDIR /app/backend
 
-# npm ci SKIPS devDependencies when NODE_ENV=production (often set on the host during build).
 # Force a full install so typescript is available for the compile step.
 ENV NODE_ENV=development
 
@@ -16,13 +15,19 @@ COPY backend/cli ./cli
 
 RUN ./node_modules/.bin/tsc
 
-RUN test -f node_modules/express/index.js
-RUN node --input-type=module -e "import('express').then(m => { if (typeof m.default !== 'function') throw new Error('express broken'); console.log('express import OK'); })"
+# --- Runtime Stage ---
+FROM node:20-alpine
 
-# Runtime image only needs production dependencies + compiled dist
-RUN npm prune --omit=dev
+WORKDIR /app/backend
 
 ENV NODE_ENV=production
+
+# Only install production dependencies
+COPY backend/package*.json ./
+RUN npm ci --omit=dev
+
+# Copy compiled files from builder
+COPY --from=builder /app/backend/dist ./dist
 
 EXPOSE 3001
 
