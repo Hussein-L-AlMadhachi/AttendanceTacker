@@ -1,3 +1,4 @@
+import "./load_env.js";
 import jwt from 'jsonwebtoken';
 import { type Metadata, type Validator, type ValidatorReturn } from 'enders-sync';
 import { loggedin_users } from './db.js';

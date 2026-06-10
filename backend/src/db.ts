@@ -1,3 +1,4 @@
+import "./load_env.js";
 import { PG_App } from 'pg-norm';
 
 // tables
@@ -12,6 +13,7 @@ import { Attended } from './Features/attended/attended.sql.js';
 // Initialize your application
 export const app = new PG_App({
     host: process.env.DB_HOST || 'localhost',
+    port: Number(process.env.DB_PORT) || 5433,
     database: process.env.DB_NAME || 'attendance_trackeroo',
     username: process.env.DB_USER || 'dev',
     password: process.env.DB_PASSWORD || 'dev123456'
