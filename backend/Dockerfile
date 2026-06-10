@@ -3,34 +3,30 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app/backend
 
-# Copy package files
 COPY backend/package*.json ./
-
-# Install dependencies
 RUN npm ci
 
-# Copy source code
-COPY backend/ ./
+COPY backend/tsconfig.json ./
+COPY backend/src ./src
+COPY backend/cli ./cli
 
-# Compile TypeScript
-RUN npm run build || tsc
+RUN npm run build
+RUN test -f node_modules/express/index.js
+RUN npm prune --omit=dev
+RUN test -f node_modules/express/index.js
 
-# Production stage
 FROM node:20-alpine
 
 WORKDIR /app/backend
 
-# Copy package files
+ENV NODE_ENV=production
+
 COPY backend/package*.json ./
-
-# Install production dependencies only
-RUN npm ci --only=production
-
-# Copy compiled code from builder
+COPY --from=builder /app/backend/node_modules ./node_modules
 COPY --from=builder /app/backend/dist ./dist
 
-# Expose backend port
+RUN test -f node_modules/express/index.js
+
 EXPOSE 3001
 
-# Start the application
-CMD ["npm", "start"]
+CMD ["node", "./dist/src/main.js"]

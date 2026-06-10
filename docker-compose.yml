@@ -16,12 +16,36 @@ services:
     ports:
       - "${POSTGRES_PUBLISH_PORT}:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      # Use the default "postgres" DB — always exists, even on old volumes
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
       - cenusis-network
+
+  db-bootstrap:
+    image: postgres:16-alpine
+    container_name: cenusis-db-bootstrap
+    env_file:
+      - .env
+    environment:
+      PGPASSWORD: ${DB_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - cenusis-network
+    restart: "no"
+    entrypoint:
+      - sh
+      - -c
+      - |
+        echo "Ensuring database ${DB_NAME} exists..."
+        psql -h postgres -U "${DB_USER}" -d postgres -tc \
+          "SELECT 1 FROM pg_database WHERE datname = '${DB_NAME}'" | grep -q 1 \
+          || psql -h postgres -U "${DB_USER}" -d postgres -c "CREATE DATABASE \"${DB_NAME}\";"
+        echo "Database ${DB_NAME} is ready."
 
   backend:
     build:
@@ -29,17 +53,23 @@ services:
       dockerfile: backend/Dockerfile
     container_name: cenusis-backend
     restart: unless-stopped
-    env_file:
-      - .env
+    # Do NOT use env_file here — .env DB_HOST/DB_PORT are for the host, not Docker network
     environment:
+      NODE_ENV: production
+      JWT_SECRET: ${JWT_SECRET}
       DB_HOST: postgres
       DB_PORT: "5432"
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
       PORT: ${BACKEND_PORT:-3001}
     ports:
       - "${BACKEND_PORT:-3001}:${BACKEND_PORT:-3001}"
     depends_on:
       postgres:
         condition: service_healthy
+      db-bootstrap:
+        condition: service_completed_successfully
     networks:
       - cenusis-network
 
