@@ -1,0 +1,9 @@
+# Build context is the repo root; backend/.dockerignore is not read by Docker.
+**/node_modules
+**/.git
+**/.env
+**/.env.*
+**/dist
+**/coverage
+**/*.md
+**/.DS_Store
