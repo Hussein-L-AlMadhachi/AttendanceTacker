@@ -1,23 +1,28 @@
 FROM node:20-alpine AS builder
 
+ARG NODE_ENV=development
+
 WORKDIR /app/backend
 
-ENV NODE_ENV=development
+# Host/compose often sets NODE_ENV=production; that makes `npm ci` skip tooling.
+ENV NODE_ENV=${NODE_ENV}
 
 COPY backend/package*.json ./
-RUN npm ci
+RUN npm ci && test -x node_modules/.bin/tsc
 
 COPY backend/tsconfig.json ./
 COPY backend/src ./src
 COPY backend/cli ./cli
 
-RUN npm run build
+RUN node_modules/.bin/tsc
 
 FROM node:20-alpine
 
+ARG NODE_ENV=production
+
 WORKDIR /app/backend
 
-ENV NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
 
 COPY backend/package*.json ./
 RUN npm ci --omit=dev

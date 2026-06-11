@@ -48,6 +48,8 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
+      args:
+        NODE_ENV: development
     image: cenusis-backend:latest
     container_name: cenusis-backend
     restart: unless-stopped
