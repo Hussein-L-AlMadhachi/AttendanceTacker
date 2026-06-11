@@ -1,5 +1,3 @@
-
-
 services:
   postgres:
     image: postgres:16-alpine
@@ -16,7 +14,6 @@ services:
     ports:
       - "${POSTGRES_PUBLISH_PORT}:5432"
     healthcheck:
-      # Use the default "postgres" DB — always exists, even on old volumes
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d postgres"]
       interval: 10s
       timeout: 5s
@@ -54,7 +51,6 @@ services:
     image: cenusis-backend:latest
     container_name: cenusis-backend
     restart: unless-stopped
-    # Do NOT use env_file here — .env DB_HOST/DB_PORT are for the host, not Docker network
     environment:
       NODE_ENV: production
       JWT_SECRET: ${JWT_SECRET}
