@@ -28,6 +28,8 @@ services:
       - .env
     environment:
       PGPASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./migrations:/migrations:ro
     depends_on:
       postgres:
         condition: service_healthy
@@ -43,6 +45,16 @@ services:
           "SELECT 1 FROM pg_database WHERE datname = '${DB_NAME}'" | grep -q 1 \
           || psql -h postgres -U "${DB_USER}" -d postgres -c "CREATE DATABASE \"${DB_NAME}\";"
         echo "Database ${DB_NAME} is ready."
+        echo "Applying database migrations..."
+        if [ ! -d /migrations ] || [ -z "$(find /migrations -maxdepth 1 -type f -name '*.sql' -print -quit)" ]; then
+          echo "No migration SQL files found in /migrations" >&2
+          exit 1
+        fi
+        for file in /migrations/*.sql; do
+          echo "Applying $${file}..."
+          psql -h postgres -U "${DB_USER}" -d "${DB_NAME}" -v ON_ERROR_STOP=1 -f "$${file}"
+        done
+        echo "Database migrations applied."
 
   backend:
     build:
@@ -61,6 +73,10 @@ services:
       DB_NAME: ${DB_NAME}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      SUPERADMIN_USERNAME: ${SUPERADMIN_USERNAME:-}
+      SUPERADMIN_PASSWORD: ${SUPERADMIN_PASSWORD:-}
       PORT: ${BACKEND_PORT:-3001}
     ports:
       - "${BACKEND_PORT:-3001}:${BACKEND_PORT:-3001}"

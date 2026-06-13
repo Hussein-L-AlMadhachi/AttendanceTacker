@@ -5,15 +5,31 @@ import * as path from 'path';
 
 
 
-// Load configuration from JSON file
 const configPath = path.join(process.cwd(), '../.default_accounts.json');
-const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+const config = fs.existsSync(configPath)
+    ? JSON.parse(fs.readFileSync(configPath, 'utf8'))
+    : {
+        admin: {
+            username: process.env.ADMIN_USERNAME,
+            password: process.env.ADMIN_PASSWORD
+        },
+        superadmin: {
+            username: process.env.SUPERADMIN_USERNAME,
+            password: process.env.SUPERADMIN_PASSWORD
+        }
+    };
 
 
 
-if (!config.admin.username || !config.admin.password || !config.superadmin.username || !config.superadmin.password) {
-    console.error('Error: Invalid configuration file');
-    process.exit(1);
+const hasDefaultAccountsConfig = Boolean(
+    config.admin.username
+    && config.admin.password
+    && config.superadmin.username
+    && config.superadmin.password
+);
+
+if (!hasDefaultAccountsConfig) {
+    console.warn('Warning: default admin accounts are not configured; skipping account bootstrap');
 }
 
 
@@ -36,19 +52,21 @@ async function ensureRootAccount(username: string, password: string, role: "admi
     return created!;
 }
 
-const uid_admin = await ensureRootAccount(
-    config.admin.username,
-    config.admin.password,
-    "admin"
-);
+if (hasDefaultAccountsConfig) {
+    const uid_admin = await ensureRootAccount(
+        config.admin.username,
+        config.admin.password,
+        "admin"
+    );
 
-const uid2_superadmin = await ensureRootAccount(
-    config.superadmin.username,
-    config.superadmin.password,
-    "superadmin"
-);
+    const uid2_superadmin = await ensureRootAccount(
+        config.superadmin.username,
+        config.superadmin.password,
+        "superadmin"
+    );
 
 
 
-console.log(` [DONE]  ADMIN user is ready (id:${uid_admin.id})`);
-console.log(` [DONE]  SUPERADMIN user is ready (id:${uid2_superadmin.id})`);
+    console.log(` [DONE]  ADMIN user is ready (id:${uid_admin.id})`);
+    console.log(` [DONE]  SUPERADMIN user is ready (id:${uid2_superadmin.id})`);
+}

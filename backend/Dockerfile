@@ -28,7 +28,6 @@ ENV NODE_ENV=${NODE_ENV}
 # Reuse built deps from the builder instead of running npm ci again on prod.
 COPY --from=builder /app/backend/node_modules ./node_modules
 COPY --from=builder /app/backend/dist ./dist
-COPY .default_accounts.json /app/.default_accounts.json
 
 EXPOSE 3001
 
