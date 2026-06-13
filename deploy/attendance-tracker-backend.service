@@ -1,6 +1,6 @@
 [Unit]
 Description=Attendance Tracker Backend API
-Documentation=file:///home/hussein/Projects/gigs/AttendanceTacker/README.md
+Documentation=file:///home/hussein/AttendanceTacker/README.md
 After=network-online.target
 Wants=network-online.target
 # Uncomment if PostgreSQL runs on the same host:
@@ -22,7 +22,7 @@ Environment=NODE_ENV=production
 
 # Build before deploying or restarting after code changes:
 #   cd backend && npm ci && npm run build
-ExecStart=/usr/bin/node dist/src/main.js
+ExecStart=/home/hussein/.nvm/versions/node/v24.15.0/bin/node dist/src/main.js
 
 Restart=on-failure
 RestartSec=5
