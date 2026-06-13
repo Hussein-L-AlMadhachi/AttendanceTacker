@@ -19,7 +19,7 @@ WORKDIR /app/backend
 ENV NODE_ENV=production
 
 COPY backend/package.json backend/package-lock.json ./
-RUN npm ci --omit=dev --no-audit --no-fund \
+RUN npm ci --no-audit --no-fund \
     && test -f node_modules/express/index.js
 
 COPY --from=build /app/backend/dist ./dist
