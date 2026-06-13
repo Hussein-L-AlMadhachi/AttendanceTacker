@@ -4,6 +4,8 @@
 **/.env
 **/.env.*
 **/dist
+!backend/dist
+!backend/dist/**
 **/coverage
 **/*.md
 **/.DS_Store

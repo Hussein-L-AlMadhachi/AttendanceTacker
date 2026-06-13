@@ -46,7 +46,7 @@ services:
           || psql -h postgres -U "${DB_USER}" -d postgres -c "CREATE DATABASE \"${DB_NAME}\";"
         echo "Database ${DB_NAME} is ready."
         echo "Applying database migrations..."
-        if [ ! -d /migrations ] || [ -z "$(find /migrations -maxdepth 1 -type f -name '*.sql' -print -quit)" ]; then
+        if [ ! -d /migrations ] || [ -z "$$(find /migrations -maxdepth 1 -type f -name '*.sql' -print -quit)" ]; then
           echo "No migration SQL files found in /migrations" >&2
           exit 1
         fi
@@ -60,8 +60,6 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-      args:
-        NODE_ENV: development
     image: cenusis-backend:latest
     container_name: cenusis-backend
     restart: unless-stopped
