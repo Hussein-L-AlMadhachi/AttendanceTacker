@@ -4,20 +4,22 @@ import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 
 
+if (process.env.NODE_ENV != "production") {
 
-const moduleDir = path.dirname(fileURLToPath(import.meta.url));
-
-const envCandidates = [
-    path.resolve(process.cwd(), ".env"),
-    path.resolve(process.cwd(), "..", ".env"),
-    path.resolve(moduleDir, "../../.env"),
-    path.resolve(moduleDir, "../../../.env"),
-    path.resolve(moduleDir, "../../../../.env"),
-];
-
-for (const envPath of envCandidates) {
-    if (fs.existsSync(envPath)) {
-        dotenv.config({ path: envPath });
-        break;
+    const moduleDir = path.dirname(fileURLToPath(import.meta.url));
+    
+    const envCandidates = [
+        path.resolve(process.cwd(), ".env"),
+        path.resolve(process.cwd(), "..", ".env"),
+        path.resolve(moduleDir, "../../.env"),
+        path.resolve(moduleDir, "../../../.env"),
+        path.resolve(moduleDir, "../../../../.env"),
+    ];
+    
+    for (const envPath of envCandidates) {
+        if (fs.existsSync(envPath)) {
+            dotenv.config({ path: envPath });
+            break;
+        }
     }
 }
